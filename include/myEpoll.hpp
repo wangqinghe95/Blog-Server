@@ -26,12 +26,14 @@ private:
 
 class Epoll {
 public:
-    // to do
     Epoll();
+    ~Epoll();
 
     epoll_event *my_epoll_event;
 
-    int createEpoll(int size);
+    int epollCreate(int size);
+    int epollAdd(int epoll_fd, int listen_fd);
+    int epollWait(int epoll_fd, epoll_event* event, int epoll_size);
 };
 
 #endif

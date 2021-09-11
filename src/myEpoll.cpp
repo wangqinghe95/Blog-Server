@@ -5,6 +5,7 @@
 #include<netinet/in.h>
 #include<cstring>
 #include<unistd.h>
+#include<fcntl.h>
 
 Socket::Socket(/* args */)
 {
@@ -36,7 +37,7 @@ int Socket::BindListenFd(int listen_fd, int port) {
 
     // to solve problem that "address already in use"
     int opt_val = 1;
-    if (-1 == setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, opt_val)) {
+    if (-1 == setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &opt_val, sizeof(int))) {
         return SOCKET_SETSOCKETOPTION_ERROR;
     }
 
@@ -76,11 +77,49 @@ int Socket::socketCreate(int port) {
     return listen_fd;
 }
 
-int Epoll::createEpoll(int size) {
+Epoll::Epoll():my_epoll_event(nullptr) {
+
+}
+
+Epoll::~Epoll() {
+    if (my_epoll_event != nullptr) {
+        delete my_epoll_event;
+    }
+}
+
+int Epoll::epollCreate(int size) {
     int epoll_fd = epoll_create(size+1);
     if (-1 == epoll_fd) {
         return EPOLL_CREATE_ERROR;
     }
 
+    my_epoll_event = new epoll_event[size+1];
+
     return epoll_fd;
+}
+
+int Epoll::epollAdd(int epoll_fd, int listen_fd) {
+    epoll_event ev;
+    ev.data.fd = listen_fd;
+
+    /*
+        EPOLLET:edge triggered,kernel can only noticed user one time
+        if a file descripition is prepared
+        Level triggered:kernel will always notice user when a file description is prepared
+        and user aren't to operator this file description. this mode is the defalut
+    */
+    ev.events = EPOLLIN | EPOLLET;
+
+    if (-1 == epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_fd, &ev)) {
+        return EPOLL_CTL_ADD_ERROR;
+    }
+
+    fcntl(listen_fd, F_SETFL, fcntl(listen_fd, F_GETFD, 0) | O_NONBLOCK);
+
+    return 1;
+}
+
+//to do
+int epollWait(int epoll_fd, epoll_event* event, int epoll_size) {
+
 }
