@@ -1,4 +1,4 @@
-#include"epoll.hpp"
+#include"myEpoll.hpp"
 #include"logger.hpp"
 
 #include<sys/socket.h>
@@ -77,5 +77,10 @@ int Socket::socketCreate(int port) {
 }
 
 int Epoll::createEpoll(int size) {
-    
+    int epoll_fd = epoll_create(size+1);
+    if (-1 == epoll_fd) {
+        return EPOLL_CREATE_ERROR;
+    }
+
+    return epoll_fd;
 }

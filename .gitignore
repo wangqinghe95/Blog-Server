@@ -32,5 +32,6 @@
 *.app
 
 # executable program
-./bin/*
+./bin/myserver
 myserver
+./bin/*

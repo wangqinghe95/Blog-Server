@@ -1,6 +1,10 @@
 # Blog-Server
 server by C++
 
+# V0.2
+1. complete socket
+2. begin epoll
+
 # V0.1
-1. epoll.hpp/socket create
+1. myEpoll.hpp/socket create
 2. logger

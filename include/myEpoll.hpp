@@ -4,12 +4,10 @@
 const int LISTENNUM = 1024;
 
 #include"myError.hpp"
+#include<sys/epoll.h>
 
 class Socket
 {
-private:
-    // int listen_fd;  // fd for listening
-    int err_code;   // conserve what kind of error occur
 public:
     Socket(/* args */);
     // 
@@ -21,10 +19,18 @@ private:
     int CreateFd();
     // bind serverIp
     int BindListenFd(int fd, int port);
+
+    // int listen_fd;  // fd for listening
+    int err_code;   // conserve what kind of error occur
 };
 
 class Epoll {
 public:
+    // to do
+    Epoll();
+
+    epoll_event *my_epoll_event;
+
     int createEpoll(int size);
 };
 
