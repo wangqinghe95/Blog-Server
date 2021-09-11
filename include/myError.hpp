@@ -1,0 +1,12 @@
+#ifndef MY_ERROR_HPP_
+#define MY_ERROR_HPP_
+
+enum CodeError {
+    PORT_INVALID = -1,
+    SOCKET_CREATE_ERROR = -2,
+    SOCKET_SETSOCKETOPTION_ERROR = -3,
+    SOCKET_BIND_ERROR = -4,
+    SOCKET_LISTEN_ERROR = -5,
+};
+
+#endif
