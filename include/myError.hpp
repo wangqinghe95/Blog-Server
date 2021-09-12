@@ -12,6 +12,7 @@ enum SocketError {
 enum EpollError {
     EPOLL_CREATE_ERROR = -1,
     EPOLL_CTL_ADD_ERROR = -2,
+    EPOLL_WAIT_ERROR = -3,
 };
 
 #endif

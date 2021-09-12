@@ -120,6 +120,10 @@ int Epoll::epollAdd(int epoll_fd, int listen_fd) {
 }
 
 //to do
-int epollWait(int epoll_fd, epoll_event* event, int epoll_size) {
-
+int Epoll::epollWait(int epoll_fd, epoll_event* event, int epoll_size) {
+    
+    int event_count = epoll_wait(epoll_fd, event, epoll_size, -1);
+    if (event_count < 0) {
+        return EPOLL_WAIT_ERROR;
+    }
 }
