@@ -49,7 +49,13 @@ int main (){
                 myEpoll.epollAdd(epoll_fd, clien_fd);
             }
             else {
-                sock.recvSocketFd(sockfd);
+                string message;
+                int len = sock.recvSocketFd(sockfd, message);
+                if (len > 0) {
+                    LOG_BUG(message);
+
+                    // request to slove message from client
+                }
             }
         }
     }
@@ -58,15 +64,26 @@ int main (){
 
 int getListenFd(Socket &sock) {
     
-    int listen_fd = sock.socketCreate(PORT);
+    // int listen_fd = sock.socketCreate(PORT);
+    int listen_fd = sock.createSocketFd();
     if (listen_fd < 0) {
-        switch (listen_fd)
+        if (listen_fd == SOCKET_CREATE_ERROR)
         {
-        case -1:
+            LOG_BUG("socket 创建失败");
+        }
+        else {
+            LOG_BUG("createSocketFd unknow error")
+        }
+        return listen_fd;
+    }
+
+    int iRet = sock.bindListenSocketFd(listen_fd, PORT);
+    if (iRet < 0) {
+        switch (iRet)
+        {
+        case -2:
             LOG_BUG("Port 无效");break;
             break;
-        case -2:
-            LOG_BUG("socket 创建失败");break;
         case -3:
             LOG_BUG("setsockoption 设置失败");break;
         case -4:
@@ -76,6 +93,9 @@ int getListenFd(Socket &sock) {
         default:
             break;
         }
+
+        close(listen_fd);   // #include<unistd.h>
+        return iRet;
     }
     else {
         const string mess = "starting listen PORT:" + to_string(PORT);

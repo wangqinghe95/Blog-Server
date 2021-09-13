@@ -8,12 +8,10 @@
 #include<fcntl.h>
 #include<sys/socket.h>
 #include<arpa/inet.h>
+using namespace std;
 
 Socket::Socket(/* args */)
 {
-    // listen_listen_fd = 0;
-    err_code = 0;
-
     // 1024 is the max number of default file description in keneral 
     // if that number is modified by mannual, please update this number at that time
     client_addr = new sockaddr_in[1024];
@@ -21,7 +19,6 @@ Socket::Socket(/* args */)
 
 Socket::~Socket()
 {
-    err_code = 0;
     if (client_addr != nullptr) {
         delete client_addr;
     }
@@ -41,7 +38,7 @@ int Socket::bindListenSocketFd(int listen_fd, int port) {
 
     // check the validity of port which from caller
     if (port < 1024 || port > 65535) {
-        return PORT_INVALID;
+        return SOCKET_PORT_INVALID;
     }
 
     // to solve problem that "address already in use"
@@ -69,23 +66,6 @@ int Socket::bindListenSocketFd(int listen_fd, int port) {
     return listen_fd;
 }
 
-int Socket::socketCreate(int port) {
-    int listen_fd = createSocketFd();
-    if (listen_fd < 0) {
-        err_code = listen_fd;
-        return err_code;
-    }
-
-    int iRet = bindListenSocketFd(listen_fd, port);
-    if (iRet < 0) {
-        err_code = iRet;
-        close(listen_fd);   // #include<unistd.h>
-        return err_code;
-    }
-
-    return listen_fd;
-}
-
 int Socket::acceptSocketFd(int listen_fd) {
     socklen_t sockaddr_len = sizeof(sockaddr_in);
     sockaddr_in request_add;
@@ -100,7 +80,7 @@ int Socket::acceptSocketFd(int listen_fd) {
     return client_fd;
 }
 
-int Socket::recvSocketFd(int fd) {
+int Socket::recvSocketFd(int fd, string &message) {
     char buf[BUFSIZ] = {0};
     int len = recv(fd, buf, BUFSIZ, 0);
     if (0 == len) {
@@ -108,7 +88,7 @@ int Socket::recvSocketFd(int fd) {
         bzero(&client_addr[fd], sizeof(sockaddr_in));
     }
     else {
-        LOG_BUG(buf);
+        message = buf;
     }
     return len;
 }
