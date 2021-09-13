@@ -1,24 +1,33 @@
 #include"myEpoll.hpp"
 #include"logger.hpp"
 
-#include<sys/socket.h>
 #include<netinet/in.h>
 #include<cstring>
-#include<unistd.h>
+#include<string>
+// #include<unistd.h>
 #include<fcntl.h>
+#include<sys/socket.h>
+#include<arpa/inet.h>
 
 Socket::Socket(/* args */)
 {
     // listen_listen_fd = 0;
     err_code = 0;
+
+    // 1024 is the max number of default file description in keneral 
+    // if that number is modified by mannual, please update this number at that time
+    client_addr = new sockaddr_in[1024];
 }
 
 Socket::~Socket()
 {
     err_code = 0;
+    if (client_addr != nullptr) {
+        delete client_addr;
+    }
 }
 
-int Socket::CreateFd() {
+int Socket::createSocketFd() {
     // create a listening listen_fd for socket
     int listen_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == listen_listen_fd) {
@@ -28,7 +37,7 @@ int Socket::CreateFd() {
     return listen_listen_fd; 
 }
 
-int Socket::BindListenFd(int listen_fd, int port) {
+int Socket::bindListenSocketFd(int listen_fd, int port) {
 
     // check the validity of port which from caller
     if (port < 1024 || port > 65535) {
@@ -61,13 +70,13 @@ int Socket::BindListenFd(int listen_fd, int port) {
 }
 
 int Socket::socketCreate(int port) {
-    int listen_fd = CreateFd();
+    int listen_fd = createSocketFd();
     if (listen_fd < 0) {
         err_code = listen_fd;
         return err_code;
     }
 
-    int iRet = BindListenFd(listen_fd, port);
+    int iRet = bindListenSocketFd(listen_fd, port);
     if (iRet < 0) {
         err_code = iRet;
         close(listen_fd);   // #include<unistd.h>
@@ -77,15 +86,59 @@ int Socket::socketCreate(int port) {
     return listen_fd;
 }
 
-Epoll::Epoll():my_epoll_event(nullptr) {
+int Socket::acceptSocketFd(int listen_fd) {
+    socklen_t sockaddr_len = sizeof(sockaddr_in);
+    sockaddr_in request_add;
+    int client_fd = accept(listen_fd, (sockaddr*)&request_add, &sockaddr_len);
+
+    if (client_fd < 0) {
+        return SOCKET_ACCEPT_ERROR;
+    }
+
+    client_addr[client_fd] = request_add;
+
+    return client_fd;
+}
+
+int Socket::recvSocketFd(int fd) {
+    char buf[BUFSIZ] = {0};
+    int len = recv(fd, buf, BUFSIZ, 0);
+    if (0 == len) {
+        close(fd);
+        bzero(&client_addr[fd], sizeof(sockaddr_in));
+    }
+    else {
+        LOG_BUG(buf);
+    }
+    return len;
+}
+
+const void Socket::printClientInfo(int index) const {
+    sockaddr_in print_info = client_addr[index];
+    const string client_IP = inet_ntoa(print_info.sin_addr);
+    const string client_Port = to_string(ntohs(print_info.sin_port));
+    const string client_Fd = to_string(index);
+    const string str_info = "client connection from : " + client_IP + 
+        +" : " + client_Port + "(IP:PORT) client_fd = " + client_Fd + "\n";
+    LOG_BUG(str_info);
+}
+
+// const sockaddr_in* Socket::getSockaddrByIndex(int index) {
+//     return &client_addr[index];
+// }
+
+
+Epoll::Epoll(){
 
 }
 
 Epoll::~Epoll() {
-    if (my_epoll_event != nullptr) {
-        delete my_epoll_event;
-    }
 }
+
+// int Epoll::epollInit(epoll_event& my_epoll_event, int size) {
+//     my_epoll_event = new epoll_event[size];
+//     if 
+// }
 
 int Epoll::epollCreate(int size) {
     int epoll_fd = epoll_create(size+1);
@@ -93,7 +146,7 @@ int Epoll::epollCreate(int size) {
         return EPOLL_CREATE_ERROR;
     }
 
-    my_epoll_event = new epoll_event[size+1];
+    // my_epoll_event = new epoll_event[size+1];
 
     return epoll_fd;
 }
@@ -114,16 +167,18 @@ int Epoll::epollAdd(int epoll_fd, int listen_fd) {
         return EPOLL_CTL_ADD_ERROR;
     }
 
+    // set listen_fd as nonblocking
     fcntl(listen_fd, F_SETFL, fcntl(listen_fd, F_GETFD, 0) | O_NONBLOCK);
 
-    return 1;
+    return 0;
 }
 
-//to do
 int Epoll::epollWait(int epoll_fd, epoll_event* event, int epoll_size) {
     
     int event_count = epoll_wait(epoll_fd, event, epoll_size, -1);
     if (event_count < 0) {
         return EPOLL_WAIT_ERROR;
     }
+
+    return event_count;
 }

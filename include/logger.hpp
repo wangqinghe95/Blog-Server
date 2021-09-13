@@ -28,7 +28,7 @@ private:
     /* data */
 public:
     Logger(/* args */);
-    void logger_debug(string& msg, int level);
+    void logger_debug(const string& msg, int level);
     ~Logger();
 };
 
