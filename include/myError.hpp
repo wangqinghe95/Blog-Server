@@ -8,6 +8,7 @@ enum SocketError {
     SOCKET_BIND_ERROR = -4,
     SOCKET_LISTEN_ERROR = -5,
     SOCKET_ACCEPT_ERROR = -6,
+    SOCKET_SEND_ERROR = -7
 };
 
 enum EpollError {

@@ -1,6 +1,7 @@
 #include<iostream>
 #include"myEpoll.hpp"
 #include"logger.hpp"
+#include"http.hpp"
 using namespace std;
 
 const int PORT = 8800;  // 后期从配置文件中读取
@@ -33,6 +34,7 @@ int main (){
         exit(0);
     }
 
+    Request httpRequest;
     while (1) {
         int event_num = myEpoll.epollWait(epoll_fd, my_epoll_event, EPOLLSIZE);
         if (event_num < 0) {
@@ -51,10 +53,20 @@ int main (){
             else {
                 string message;
                 int len = sock.recvSocketFd(sockfd, message);
+                sock.printClientInfo(sockfd);
                 if (len > 0) {
                     LOG_BUG(message);
-
+                    string send_data;
+                    httpRequest.requestGenerateHttp(send_data);
                     // request to slove message from client
+                    if (SOCKET_SEND_ERROR == sock.sendSocketFd(sockfd, send_data)) {
+                        string error = "send data to " + to_string(sockfd) + "error";
+                        LOG_BUG(error)
+                    }
+                    else {
+                        string success = "send data to " + to_string(sockfd) + " success : \r\n" + send_data;
+                        LOG_BUG(success);
+                    }
                 }
             }
         }

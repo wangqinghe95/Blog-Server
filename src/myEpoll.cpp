@@ -93,7 +93,7 @@ int Socket::recvSocketFd(int fd, string &message) {
     return len;
 }
 
-const void Socket::printClientInfo(int index) const {
+void Socket::printClientInfo(int index) const {
     sockaddr_in print_info = client_addr[index];
     const string client_IP = inet_ntoa(print_info.sin_addr);
     const string client_Port = to_string(ntohs(print_info.sin_port));
@@ -101,6 +101,14 @@ const void Socket::printClientInfo(int index) const {
     const string str_info = "client connection from : " + client_IP + 
         +" : " + client_Port + "(IP:PORT) client_fd = " + client_Fd + "\n";
     LOG_BUG(str_info);
+}
+
+int Socket::sendSocketFd(int fd, std::string& send_message) {
+    int ret = send(fd, send_message.c_str(), 4096, 0);
+    if (ret < 0) {
+        return SOCKET_SEND_ERROR;
+    }
+    return ret;
 }
 
 // const sockaddr_in* Socket::getSockaddrByIndex(int index) {

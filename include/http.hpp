@@ -2,6 +2,7 @@
 #define HTTP_HPP_
 
 #include<string>
+#include"json.hpp"
 
 class Request{
 public:
@@ -17,6 +18,10 @@ public:
      * [out] send_data: data sending to clent be generated
     */    
     int requestGenerateHttp(std::string& send_data);
+
+private:
+    int getSendData(int code, std::string& send_data);
+    int getBody(std::string& body);
 };
 
 #endif

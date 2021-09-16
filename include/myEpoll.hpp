@@ -27,8 +27,10 @@ public:
     // get data from client
     int recvSocketFd(int fd, std::string &message);
 
+    int sendSocketFd(int fd, std::string& send_message);
+
     // get client info by index(clinet_fd)
-    const void printClientInfo(int index) const;
+    void printClientInfo(int index) const;
     
 private:
 

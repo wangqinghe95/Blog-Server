@@ -1,6 +1,15 @@
 # Blog-Server
 server by C++
 
+# 1. complie
+make
+
+# 2. run
+./bin/myserver
+
+---
+
+# record
 # V0.3
 1. receive the request from web succesfully
 
