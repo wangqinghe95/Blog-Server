@@ -1,4 +1,5 @@
-#include"http.hpp"
+#include "http.hpp"
+#include "json/serialization.h"
 using namespace std;
 
 // to do
@@ -30,7 +31,7 @@ int Request::getSendData(int code, string& send_data) {
     
     // int send_content_len = strlen(send_content);
 
-    messages += "Content-type: text/html\r\n";
+    messages += "Content-type: application/json\r\n";
     messages += "content-length: " + to_string(send_data_body.size()) + "\r\n";
     messages += "\r\n";
     messages += send_data_body;
@@ -40,8 +41,14 @@ int Request::getSendData(int code, string& send_data) {
 
 
 int Request::getBody(std::string& body) {
-    body += "{\"name\": \"wanghao\", \"age\": 15}";
+    string str = "{\"name\": \"wanghao\", \"age\": 15}";
+
+    JsonValue root = JsonParser::toJsonValue(str);
     
+    JsonObject jsonObj;
+    body = JsonParser::toJson(root);
+    body.push_back('\0');
+    // std::cout << str.data() << std::endl; 
     // JsonWriter *w = new JsonWriter;
     // w->SetInitialIndentDepth(2);
     return body.size();

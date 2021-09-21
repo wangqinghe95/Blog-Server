@@ -2,7 +2,7 @@
 #define HTTP_HPP_
 
 #include<string>
-#include"json.hpp"
+// #include"json.hpp"
 
 class Request{
 public:
@@ -22,6 +22,7 @@ public:
 private:
     int getSendData(int code, std::string& send_data);
     int getBody(std::string& body);
+    //int Request::getBody(std::string& body)
 };
 
 #endif
