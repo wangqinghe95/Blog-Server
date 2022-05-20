@@ -41,15 +41,30 @@ int Request::getSendData(int code, string& send_data) {
 
 
 int Request::getBody(std::string& body) {
-    string str = "{\"name\": \"wanghao\", \"age\": 15}";
+    // string str = "{\"name\": \"wanghao\", \"age\": 15}";
 
-    JsonValue root = JsonParser::toJsonValue(str);
+    // JsonValue root = JsonParser::toJsonValue(str);
     
-    JsonObject jsonObj;
-    body = JsonParser::toJson(root);
-    body.push_back('\0');
-    // std::cout << str.data() << std::endl; 
-    // JsonWriter *w = new JsonWriter;
-    // w->SetInitialIndentDepth(2);
-    return body.size();
+    // JsonObject jsonObj;
+    // body = JsonParser::toJson(root);
+    // body.push_back('\0');
+    string res;
+    res.push_back('[');
+    for (auto it = data.begin(); it != data.end(); ++it) {
+        // insertIteratorToRes(res,it->first);
+        res.push_back('"');
+        res.append(it->first);
+        res.push_back('"');
+        res.push_back(':');
+        res.push_back('"');
+        res.append(it->second);
+        res.push_back('"');
+        res.push_back(',');
+    }
+    res.pop_back();
+    res.push_back(']');
+
+    res.push_back('\0');
+
+    // return body.size();
 }
