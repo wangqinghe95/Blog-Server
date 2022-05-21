@@ -104,11 +104,34 @@ void Socket::printClientInfo(int index) const {
 }
 
 int Socket::sendSocketFd(int fd, std::string& send_message) {
-    int ret = send(fd, send_message.c_str(), 4096, 0);
-    if (ret < 0) {
-        return SOCKET_SEND_ERROR;
+    // int ret = send(fd, send_message.c_str(), 4096, 0);
+    // if (ret < 0) {
+    //     return SOCKET_SEND_ERROR;
+    // }
+    // return ret;
+
+    size_t allWritedSize = 0;//所有已经写出的字节大小
+
+    size_t offset = 0;//偏移量
+    size_t toWriteSize = send_message.size() - offset;//等待写出的字节大小
+    while (toWriteSize > 0) {
+        ssize_t writedSize = ::write(fd, send_message.data() + offset, toWriteSize);
+        if (0 > writedSize) {
+            //假错
+            if (errno == EINTR) {
+                //被信号打断
+                continue;
+            }
+            if (errno != EAGAIN && errno != EWOULDBLOCK) {
+            }
+            break;
+        } else {
+            toWriteSize -= writedSize;//需要写出去的大小减少
+            allWritedSize += writedSize;//所有已经写出的字节大小
+            offset += writedSize;//偏移量也需要添加
+        }
     }
-    return ret;
+    return allWritedSize;
 }
 
 // const sockaddr_in* Socket::getSockaddrByIndex(int index) {

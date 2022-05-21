@@ -1,4 +1,4 @@
-DIR_INC=./include -I./include/json
+DIR_INC=./include
 DIR_SRC=./src
 DIR_OBJ=./obj
 DIR_BIN=./bin

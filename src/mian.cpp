@@ -55,7 +55,7 @@ int main (){
                 int len = sock.recvSocketFd(sockfd, message);
                 sock.printClientInfo(sockfd);
                 if (len > 0) {
-                    LOG_BUG(message);
+                    // LOG_BUG(message);
                     string send_data;
                     httpRequest.requestGenerateHttp(send_data);
                     // request to slove message from client
@@ -65,7 +65,7 @@ int main (){
                     }
                     else {
                         string success = "send data to " + to_string(sockfd) + " success : \r\n" + send_data;
-                        LOG_BUG(success);
+                        // LOG_BUG(success);
                     }
                 }
             }
