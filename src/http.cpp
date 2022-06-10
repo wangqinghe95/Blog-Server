@@ -75,8 +75,6 @@ int Request::getBody(std::string& body) {
     res.pop_back();
     res.push_back('}');
 
-    res.push_back('\0');
     body = move(res);
-    // return
     return body.size();
 }
