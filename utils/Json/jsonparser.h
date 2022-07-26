@@ -1,9 +1,10 @@
 #ifndef _JSON_PARSER_H__
 #define _JSON_PARSER_H__
 
-#include"jsonvalue.h"
+// #include"jsonvalue.h"
 #include<list>
 #include<string>
+#include"jsonvalue.h"
 
 enum class TokenType
 {
@@ -54,16 +55,10 @@ private:
     static bool isEndOfValue(char ch);
     static bool isSepartor(char ch);
     static void pushBackIfToken(std::list<JsonToken> &tokens, char ch, const std::string::const_iterator &pos);
-
+    static JsonValue generateJsonValueViaTokens(std::list<JsonToken>& tokens);
+    static JsonValue generateJsonObjectViaTokens(std::list<JsonToken> &tokens);
+    static JsonValue generateJsonArrayViaTokens(std::list<JsonToken>& tokens);
 };
-
-JsonParser::JsonParser(/* args */)
-{
-}
-
-JsonParser::~JsonParser()
-{
-}
 
 
 

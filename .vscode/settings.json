@@ -4,6 +4,10 @@
         "array": "cpp",
         "string": "cpp",
         "string_view": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "*.tcc": "cpp",
+        "functional": "cpp",
+        "limits": "cpp",
+        "type_traits": "cpp"
     }
 }

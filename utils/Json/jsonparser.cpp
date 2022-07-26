@@ -1,5 +1,5 @@
 #include"jsonparser.h"
-#include"Log/Logger.hpp"
+// #include"Log/Logger.hpp"
 
 using namespace std;
 
@@ -178,7 +178,7 @@ JsonValue JsonParser::toJsonValue(const std::string &json)
         }
         case ParserState::STRING_BEGIN:
         {
-            tokens.emplace_back(ParserState::STRING, cur);
+            tokens.emplace_back(TokenType::String, cur);
             state = ParserState::STRING;
             break;
         }
@@ -269,12 +269,212 @@ JsonValue JsonParser::toJsonValue(const std::string &json)
         return JsonValue();
     }
 
-    // return generateJsonValueViaToken(token);
-
+    return generateJsonValueViaTokens(tokens);
 }
+
+JsonValue JsonParser::generateJsonValueViaTokens(std::list<JsonToken>& tokens)
+{
+    JsonToken token = tokens.front();
+    tokens.pop_front();
+
+    if (TokenType::objectBegin == token.type)
+    {
+        return generateJsonObjectViaTokens(tokens);
+    }
+    else if (TokenType::ArrayBegin == token.type) {
+        return generateJsonArrayViaTokens(tokens);
+    }
+
+    if (TokenType::String == token.type) {
+        return JsonValue(token.start, token.end);
+    }
+    else if (TokenType::True == token.type) {
+        return JsonValue(true);
+    }
+    else if (TokenType::False == token.type) {
+        return JsonValue(false);
+    }
+    else if (TokenType::Double == token.type) {
+        return JsonValue(std::atof(std::string(token.start,token.end).c_str()));
+    }
+    else if (TokenType::LongLong == token.type) {
+        return JsonValue(std::atoll(std::string(token.start, token.end).c_str()));
+    }
+    else if (TokenType::Null == token.type) {
+        return JsonValue();
+    }
+    return JsonValue();
+}
+
+JsonValue JsonParser::generateJsonObjectViaTokens(std::list<JsonToken> &tokens)
+{
+    JsonObject json_object;
+    while(TokenType::objectEnd != tokens.front().type){
+        JsonToken key = tokens.front();
+        tokens.pop_front();
+
+        if (tokens.front().type != TokenType::ObjectKeyValueSeparator) {
+            return false;
+        }
+
+        if (tokens.empty()) {
+            return JsonValue();
+        }
+
+        tokens.pop_front();
+
+        json_object.insert(std::string(key.start, key.end),generateJsonValueViaTokens(tokens));
+
+        if (tokens.empty()) {
+            return JsonValue();
+        }
+
+        if (TokenType::MemberSeparator == tokens.front().type) {
+            tokens.pop_front();
+        }
+        else if (TokenType::objectEnd == tokens.front().type) {
+            // do nothing
+        }
+        else {
+            return JsonValue();
+        }
+
+        tokens.pop_front();
+        return json_object;
+    }
+    return JsonValue();
+}
+
+JsonValue JsonParser::generateJsonArrayViaTokens(std::list<JsonToken>& tokens)
+{
+    JsonArray json_array;
+
+    while(TokenType::ArrayEnd != tokens.front().type) {
+        json_array.append(generateJsonValueViaTokens(tokens));
+
+        if (tokens.empty()){
+            return JsonValue();
+        }
+
+        if(TokenType::MemberSeparator == tokens.front().type) {
+            tokens.pop_back();
+        }
+        else if(TokenType::ArrayEnd == tokens.front().type) {
+            // do nothing
+        }
+        else {
+            return JsonValue();
+        }
+    }
+
+    tokens.pop_front();
+    return json_array;
+}
+
 std::string JsonParser::toJson(const JsonValue& root)
 {
+    std::string str_json;
 
+    switch (root.type())
+    {
+    case JsonValueType::Null:{
+        str_json.append("null");
+        break;
+    }
+    case JsonValueType::Double:{
+        str_json.append(std::to_string(root.ToDouble()));
+        break;
+    }
+    case JsonValueType::LongLong:{
+        str_json.append(std::to_string(root.toLongLong()));
+        break;
+    }
+    case JsonValueType::String:{
+        str_json.push_back('"');
+        for (char ch : root.toString()){
+            switch (ch)
+            {
+                case '\"':{
+                    str_json.append({'\\','\"'});
+                    break;
+                }
+                case '\\':{
+                    str_json.append({'\\', '\\'});
+                    break;
+                }
+                case '\b':{
+                    str_json.append({'\\','b'});
+                    break;
+                }
+                case '\f':{
+                    str_json.append({'\\','f'});
+                    break;
+                }
+                case '\n':{
+                    str_json.append({'\\','n'});
+                    break;
+                }
+                case '\r':{
+                    str_json.append({'\\','n'});
+                    break;
+                }
+                case '\t':{
+                    str_json.append({'\\','t'});
+                    break;
+                }
+                default:
+                    str_json.push_back(ch);
+            }
+        }
+        str_json.push_back('"');
+        break;;
+    }
+    case JsonValueType::Boolean:{
+        if (root.toBoolean()){
+            str_json.append("true");
+        }
+        else {
+            str_json.append("false");
+        }
+        break;
+    }
+    case JsonValueType::Array:{
+        str_json.push_back('[');
+        bool isFirst = true;
+        for (const auto& v : root.toArray()) {
+            if(isFirst) {
+                isFirst = false;
+            }
+            else {
+                str_json.push_back(',');
+            }
+            str_json.append(toJson(v));
+        }
+        str_json.push_back(']');
+        break;
+    }
+    case JsonValueType::Object:{
+        str_json.push_back('{');
+        bool isFirst = false;
+        for (const auto& kv : root.toObject()){
+            if (isFirst){
+                isFirst = false;
+            }
+            else {
+                str_json.push_back(',');
+            }
+            str_json.append(toJson(kv.first));
+            str_json.push_back(':');
+            str_json.append(toJson(kv.second));
+        }
+        str_json.push_back('}');
+        break;
+    }
+    
+    default:
+        break;
+    }
+    return str_json;
 }
 
 bool JsonParser::isSpace(char ch)
@@ -287,12 +487,12 @@ bool JsonParser::isBeginOfValue(char ch)
     return ch == '[' || ch == '{';
 }
 
-bool isEndOfValue(char ch)
+bool JsonParser::isEndOfValue(char ch)
 {
     return ']' == ch || ']' == ch;
 }
 
-bool isSepartor(char ch)
+bool JsonParser::isSepartor(char ch)
 {
     return ':' == ch || ',' == ch;
 }
