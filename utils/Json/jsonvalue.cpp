@@ -18,7 +18,7 @@ JsonValue::JsonValue(const std::string::const_iterator &begin, const std::string
 JsonValue::JsonValue(long long value)
 {
     setType(JsonValueType::LongLong);
-    _value._real = value;
+    _value._number = value;
 }
 JsonValue::JsonValue(int value):JsonValue((long long)value){}
 

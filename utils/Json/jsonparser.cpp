@@ -198,7 +198,7 @@ JsonValue JsonParser::toJsonValue(const std::string &json)
             if ('0' == ch) {
                 state = ParserState::NUMBER_POINT;
             }
-            else if ('0' <= ch && '9' >= ch) {
+            else if ('1' <= ch && '9' >= ch) {
                 state = ParserState::NUMBER_BEFORE_POINT;
             }
             else {
@@ -223,7 +223,7 @@ JsonValue JsonParser::toJsonValue(const std::string &json)
             break;
         }
         case ParserState::NUMBER_BEFORE_POINT: {
-            if ('0' <= ch && '9' <= ch) {
+            if ('0' <= ch && '9' >= ch) {
                 // do nothing
             }
             else {
@@ -249,7 +249,8 @@ JsonValue JsonParser::toJsonValue(const std::string &json)
         }
         case ParserState::END:
         {
-            if (isSpace(ch) || isSepartor(ch) || isEndOfValue(ch)) {
+            bool isEnd = isSpace(ch) || isSepartor(ch) || isEndOfValue(ch);
+            if (isEnd) {
                 pushBackIfToken(tokens, ch, cur);
             }
             else {
@@ -279,7 +280,8 @@ JsonValue JsonParser::generateJsonValueViaTokens(std::list<JsonToken>& tokens)
 
     if (TokenType::objectBegin == token.type)
     {
-        return generateJsonObjectViaTokens(tokens);
+        JsonValue res = generateJsonObjectViaTokens(tokens);
+        return res;
     }
     else if (TokenType::ArrayBegin == token.type) {
         return generateJsonArrayViaTokens(tokens);
@@ -298,6 +300,7 @@ JsonValue JsonParser::generateJsonValueViaTokens(std::list<JsonToken>& tokens)
         return JsonValue(std::atof(std::string(token.start,token.end).c_str()));
     }
     else if (TokenType::LongLong == token.type) {
+        std::string str_value = std::string(token.start, token.end).c_str();
         return JsonValue(std::atoll(std::string(token.start, token.end).c_str()));
     }
     else if (TokenType::Null == token.type) {
@@ -339,10 +342,9 @@ JsonValue JsonParser::generateJsonObjectViaTokens(std::list<JsonToken> &tokens)
             return JsonValue();
         }
 
-        tokens.pop_front();
-        return json_object;
     }
-    return JsonValue();
+    tokens.pop_front();
+    return json_object;
 }
 
 JsonValue JsonParser::generateJsonArrayViaTokens(std::list<JsonToken>& tokens)
@@ -455,7 +457,7 @@ std::string JsonParser::toJson(const JsonValue& root)
     }
     case JsonValueType::Object:{
         str_json.push_back('{');
-        bool isFirst = false;
+        bool isFirst = true;
         for (const auto& kv : root.toObject()){
             if (isFirst){
                 isFirst = false;
@@ -489,7 +491,7 @@ bool JsonParser::isBeginOfValue(char ch)
 
 bool JsonParser::isEndOfValue(char ch)
 {
-    return ']' == ch || ']' == ch;
+    return ']' == ch || '}' == ch;
 }
 
 bool JsonParser::isSepartor(char ch)
