@@ -211,7 +211,7 @@ JsonValue JsonParser::toJsonValue(const std::string &json)
             if ('.' == ch) {
                 state = ParserState::NUMBER_AFTER_POINT;
             }
-            else if (',' == ch || isSepartor(ch) || isEndOfValue(ch)) {
+            else if (',' == ch || isSpace(ch) || isEndOfValue(ch)) {
                 tokens.back().type = TokenType::LongLong;
                 tokens.back().end = cur;
                 p--;
@@ -352,14 +352,15 @@ JsonValue JsonParser::generateJsonArrayViaTokens(std::list<JsonToken>& tokens)
     JsonArray json_array;
 
     while(TokenType::ArrayEnd != tokens.front().type) {
-        json_array.append(generateJsonValueViaTokens(tokens));
+        JsonValue json_value = generateJsonValueViaTokens(tokens);
+        json_array.append(json_value);
 
         if (tokens.empty()){
             return JsonValue();
         }
 
         if(TokenType::MemberSeparator == tokens.front().type) {
-            tokens.pop_back();
+            tokens.pop_front();
         }
         else if(TokenType::ArrayEnd == tokens.front().type) {
             // do nothing
