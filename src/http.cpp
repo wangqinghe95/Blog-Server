@@ -1,9 +1,12 @@
 #include "http.hpp"
 #include "jsonparser.h"
-#include "logger.hpp"
 #include <map>
 // #include "../include/json/serialization.h"
 using namespace std;
+extern Logger& Log;
+Request::Request()
+{
+}
 
 // to do
 int Request::requestAnalyzeMessage(string &recv_data) {
@@ -35,7 +38,7 @@ int Request::getSendData(int code, string& send_data) {
     getBody(send_data_body);
     
     // int send_content_len = strlen(send_content);
-    LOG_BUG(send_data_body);
+    LOG_DEBUG(send_data_body);
     messages += "Content-type: application/json\r\n";
     messages += "content-length: " + to_string(send_data_body.size()) + "\r\n";
     messages += "\r\n";

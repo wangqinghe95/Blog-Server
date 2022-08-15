@@ -7,6 +7,8 @@ using namespace std;
 const int PORT = 8800;  // 后期从配置文件中读取
 const int EPOLLSIZE = 5000;
 
+Logger& Log = Logger::getInstance();
+
 // get listen fd from socket class by call function of socket in linux
 int getListenFd(Socket &sock);
 
@@ -24,13 +26,13 @@ int main (){
 
     int epoll_fd = myEpoll.epollCreate(EPOLLSIZE);
     if (epoll_fd == -1) {
-        LOG_BUG("Create Epoll error");
+        LOG_DEBUG("Create Epoll error");
         exit(1);
     }
 
     //add event to kernel
     if (EPOLL_CTL_ADD_ERROR == myEpoll.epollAdd(epoll_fd, listen_fd)) {
-        LOG_BUG("Add Epoll error")
+        LOG_DEBUG("Add Epoll error")
         exit(0);
     }
 
@@ -38,7 +40,7 @@ int main (){
     while (1) {
         int event_num = myEpoll.epollWait(epoll_fd, my_epoll_event, EPOLLSIZE);
         if (event_num < 0) {
-            LOG_BUG("wait Epoll error");
+            LOG_DEBUG("wait Epoll error");
             break;
         }
 
@@ -55,17 +57,17 @@ int main (){
                 int len = sock.recvSocketFd(sockfd, message);
                 sock.printClientInfo(sockfd);
                 if (len > 0) {
-                    // LOG_BUG(message);
+                    // LOG_DEBUG(message);
                     string send_data;
                     httpRequest.requestGenerateHttp(send_data);
                     // request to slove message from client
                     if (SOCKET_SEND_ERROR == sock.sendSocketFd(sockfd, send_data)) {
                         string error = "send data to " + to_string(sockfd) + "error";
-                        LOG_BUG(error)
+                        // LOG_DEBUG(error)
                     }
                     else {
                         string success = "send data to " + to_string(sockfd) + " success : \r\n" + send_data;
-                        // LOG_BUG(success);
+                        // LOG_DEBUG(success);
                     }
                 }
             }
@@ -81,10 +83,10 @@ int getListenFd(Socket &sock) {
     if (listen_fd < 0) {
         if (listen_fd == SOCKET_CREATE_ERROR)
         {
-            LOG_BUG("socket 创建失败");
+            LOG_DEBUG("socket 创建失败");
         }
         else {
-            LOG_BUG("createSocketFd unknow error")
+            LOG_DEBUG("createSocketFd unknow error")
         }
         return listen_fd;
     }
@@ -94,14 +96,14 @@ int getListenFd(Socket &sock) {
         switch (iRet)
         {
         case -2:
-            LOG_BUG("Port 无效");break;
+            LOG_DEBUG("Port 无效");break;
             break;
         case -3:
-            LOG_BUG("setsockoption 设置失败");break;
+            LOG_DEBUG("setsockoption 设置失败");break;
         case -4:
-            LOG_BUG("bind 绑定失败");break;
+            LOG_DEBUG("bind 绑定失败");break;
         case -5:
-            LOG_BUG("listen 监听失败");break;
+            LOG_DEBUG("listen 监听失败");break;
         default:
             break;
         }
@@ -111,7 +113,7 @@ int getListenFd(Socket &sock) {
     }
     else {
         const string mess = "starting listen PORT:" + to_string(PORT);
-        LOG_BUG(mess);
+        LOG_DEBUG(mess);
     }
 
     return listen_fd;

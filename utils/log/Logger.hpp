@@ -1,7 +1,7 @@
 #ifndef _LOGGER_HPP__
 #define _LOGGER_HPP__
 
-#define LOG_Debug(msg) Log.output(__FILE__, __LINE__,__FUNCTION__,msg);
+#define LOG_DEBUG(msg) Log.output(__FILE__, __LINE__,__FUNCTION__,msg);
 
 #include<string>
 

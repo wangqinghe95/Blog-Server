@@ -10,6 +10,8 @@
 #include<arpa/inet.h>
 using namespace std;
 
+extern Logger& Log;
+
 Socket::Socket(/* args */)
 {
     // 1024 is the max number of default file description in keneral 
@@ -100,7 +102,7 @@ void Socket::printClientInfo(int index) const {
     const string client_Fd = to_string(index);
     const string str_info = "client connection from : " + client_IP + 
         +" : " + client_Port + "(IP:PORT) client_fd = " + client_Fd + "\n";
-    LOG_BUG(str_info);
+    LOG_DEBUG(str_info);
 }
 
 int Socket::sendSocketFd(int fd, std::string& send_message) {

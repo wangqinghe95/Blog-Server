@@ -2,13 +2,14 @@
 #define HTTP_HPP_
 
 #include<string>
-// #include"json.hpp"
-#include "serialization.h"
-
+// #include"jsonpar.hpp"
+// #include "serialization.h"
+#include"jsonparser.h"
+#include "logger.hpp"
 
 class Request{
 public:
-
+    Request();
     /*
      * [desc] analyze the request from client
      * [in] message: a string will be analyzed which from client
@@ -25,6 +26,7 @@ private:
     int getSendData(int code, std::string& send_data);
     int getBody(std::string& body);
     //int Request::getBody(std::string& body)
+
 };
 
 #endif

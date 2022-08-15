@@ -1,5 +1,6 @@
 #include"logger.hpp"
 #include<iostream>
+#include<string>
 // #include<string>
 #include<sstream>
 #include<ctime>
@@ -14,7 +15,7 @@ void Logger::output(const std::string &file, long line ,const std::string& func,
 	string str_time;
 	getTimeStamp(str_time);
 	ss << "[" << str_time << "] ";
-	ss << "[" << file << ":" << func << ":" << line << "] " << msg << endl;
+    ss << "[" << file << ":" << func << ":" << line << "] " << msg << endl;
     cout << ss.str() << endl;
 }
 
