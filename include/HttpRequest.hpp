@@ -3,6 +3,8 @@
 
 #include<iostream>
 #include<map>
+#include<string>
+
 
 enum DecodeState{
     EMPTY = -1,
@@ -48,6 +50,39 @@ public:
     ~HttpRequest();
 
     DecodeState analyzeHttpRequestString(const std::string& strRequestData);
+
+    std::string getURI(){
+        return m_url;
+    }
+
+    std::string getMethod(){
+        return m_method;
+    }
+
+    std::string getProtocol(){
+        return m_protocol;
+    }
+
+    std::string getVersion(){
+        return m_version;
+    }
+
+    size_t getContentLength(){
+        return m_contentLength;
+    }
+
+    std::string getBody()
+    {
+        return m_body;
+    }
+
+    std::map<std::string,std::string> getRequestParams(){
+        return m_requestParams;
+    }
+
+    std::map<std::string,std::string> getHeaders(){
+        return m_headers;
+    }
 
 private:
     DecodeState m_emDecodeState;
