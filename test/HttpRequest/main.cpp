@@ -35,6 +35,15 @@ int main()
     cout << "method: " << CRequest.getMethod() << endl;
     cout << endl;
 
+    cout << "url: " << CRequest.getURI() << endl;
+    cout << endl;
+
+    cout << "protocol :" << CRequest.getProtocol() << endl;
+    cout << endl;
+
+    cout << "Version : " << CRequest.getVersion() << endl;
+    cout << endl;
+
     cout << "request params : " << endl;
     map<string,string> mapRequstParams = CRequest.getRequestParams();
     for (auto & iter : mapRequstParams){

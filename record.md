@@ -1,3 +1,7 @@
+# 20200818
+1. http reponse 部分代码初步结束
+2. 需要写一个做任务的类来处理前端过来的请求任务
+
 # 20220804
 1. 参考candy写出来json的解析的内容，但是感觉还是少了点什么
     2. 需要的应该是构造 json 字符串的类，后续增加
@@ -67,4 +71,17 @@ user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Fi
 host: 192.168.163.129:8800
 
 {"name":"name"}
+```
+
+// http 响应报文
+```
+HTTP/1.1 200 OK\r\n
+Server: Tengine\r\n
+Content-Type: text/html; charset=UTF-8\r\n
+Transfer-Encoding: chunked\r\n
+Connection: keep-alive\r\n
+Date: Fri, 23 Nov 2018 02:01:05 GMT\r\n
+\r\n
+
+body
 ```

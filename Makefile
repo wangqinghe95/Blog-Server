@@ -1,7 +1,7 @@
 DIR_INC=./include
 DIR_SRC=./src
 DIR_OBJ=./obj
-DIR_BIN=./
+DIR_BIN=.
 # DIR_LIB=./lib
 
 # LIBS=-lsw3 -lswofdsdk

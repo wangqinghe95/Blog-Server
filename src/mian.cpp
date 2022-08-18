@@ -1,7 +1,9 @@
 #include<iostream>
 #include"myEpoll.hpp"
 #include"logger.hpp"
-#include"http.hpp"
+// #include"http.hpp"
+#include"HttpRequest.hpp"
+#include"HttpResponse.hpp"
 using namespace std;
 
 const int PORT = 8800;  // 后期从配置文件中读取
@@ -36,7 +38,9 @@ int main (){
         exit(0);
     }
 
-    Request httpRequest;
+    // Request httpRequest;
+    HttpRequest CHttpRequest;
+    HttpResponse CHttpResponse;
     while (1) {
         int event_num = myEpoll.epollWait(epoll_fd, my_epoll_event, EPOLLSIZE);
         if (event_num < 0) {
@@ -57,16 +61,16 @@ int main (){
                 int len = sock.recvSocketFd(sockfd, message);
                 sock.printClientInfo(sockfd);
                 if (len > 0) {
-                    // LOG_DEBUG(message);
-                    string send_data;
-                    httpRequest.requestGenerateHttp(send_data);
+                    // string send_data;
+
+                    CHttpRequest.analyzeHttpRequestString(message);
                     // request to slove message from client
-                    if (SOCKET_SEND_ERROR == sock.sendSocketFd(sockfd, send_data)) {
+                    if (SOCKET_SEND_ERROR == sock.sendSocketFd(sockfd, CHttpResponse.getBody())) {
                         string error = "send data to " + to_string(sockfd) + "error";
                         // LOG_DEBUG(error)
                     }
                     else {
-                        string success = "send data to " + to_string(sockfd) + " success : \r\n" + send_data;
+                        // string success = "send data to " + to_string(sockfd) + " success : \r\n" + send_data;
                         // LOG_DEBUG(success);
                     }
                 }
