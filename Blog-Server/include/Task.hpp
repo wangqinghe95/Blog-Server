@@ -5,17 +5,24 @@
 #include"HttpResponse.hpp"
 #include"jsonvalue.h"
 
+enum TaskType{
+    USER_LOGIN,
+    ADD_FILE,
+    ADD_PNG,
+    ADD_MP3,
+    NOT_SUPPORT
+};
+
 class Task
 {
 private:
-    TaskType getTaskType(std::string &str);
+    TaskType getTaskType(std::string str);
 public:
     Task(/* args */);
     ~Task();
 
     void execTask(HttpRequest& requestData, HttpResponse& responseData);
     
-    static enum TaskType;
 private:
     void toCheckLogin();
 };
